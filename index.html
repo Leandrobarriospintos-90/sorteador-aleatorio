@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteador Aleatorio</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right bottom, #8e2de2, #4a00e0);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba( 31, 38, 135, 0.37 );
+            border: 1px solid rgba( 255, 255, 255, 0.18 );
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        /* Styles for textarea, file input, and number input (white text) */
+        .input-group textarea,
+        .input-group input[type="file"],
+        .input-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff; /* White text for these inputs */
+            margin-bottom: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+        /* Styles for the select dropdown (black text for visibility) */
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #191970; /* Black text for the select element and its options */
+            margin-bottom: 15px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.7em top 50%, 0 0;
+            background-size: 1.2em auto;
+            padding-right: 2.5em; /* Make space for the arrow */
+        }
+        .input-group textarea::placeholder,
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .input-group textarea:focus,
+        .input-group input:focus,
+        .input-group select:focus { /* Added select for styling */
+            border-color: #a78bfa; /* purple-400 */
+        }
+
+        .button-group button {
+            background-color: #6d28d9; /* violet-700 */
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+            margin: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .button-group button:hover {
+            background-color: #8b5cf6; /* violet-500 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .button-group button:disabled {
+            background-color: #9ca3af; /* gray-400 */
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Specific style for add participants button */
+        .add-participants-btn {
+            background-color: #10b981; /* emerald-500 */
+            transition: all 0.3s ease;
+        }
+        .add-participants-btn:hover {
+            background-color: #059669; /* emerald-600 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Specific style for load predefined file button */
+        .load-predefined-btn {
+            background-color: #3b82f6; /* blue-500 */
+        }
+        .load-predefined-btn:hover {
+            background-color: #2563eb; /* blue-600 */
+        }
+
+
+        .participant-list {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .participant-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+        .participant-item button {
+            background-color: #dc2626; /* red-600 */
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease;
+        }
+        .participant-item button:hover {
+            background-color: #b91c1c; /* red-700 */
+        }
+
+        .winner-card {
+            background-color: #a78bfa; /* purple-400 */
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transform: scale(0.8);
+            animation: fadeInScale 0.7s forwards cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            position: relative; /* For confetti */
+            overflow: hidden; /* For confetti */
+        }
+
+        .winner-name {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .winner-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        @keyframes fadeInScale {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Confetti effect (simple CSS based) */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ffd700; /* gold */
+            animation: confetti-fall 2s ease-out forwards;
+            opacity: 0;
+            border-radius: 50%;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(0) rotateZ(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(200px) rotateZ(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .history-section {
+            margin-top: 30px;
+            text-align: left;
+            background-color: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .history-section h3 {
+            font-size: 1.5em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        .history-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+        .history-item span {
+            font-weight: 500;
+        }
+        .history-item .timestamp {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Message Box */
+        .message-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fefcbf; /* yellow-200 */
+            color: #92400e; /* yellow-900 */
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            z-index: 1000;
+        }
+        .message-box.show {
+            opacity: 1;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-bold mb-8">Sorteador Aleatorio</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="participantsInput" class="text-left">Ingresa participantes (uno por línea):</label>
+                    <textarea id="participantsInput" rows="8" placeholder="Ej:&#10;Juan Pérez&#10;María López&#10;Carlos García"></textarea>
+                </div>
+                <div class="input-group">
+                    <label for="fileUpload" class="text-left mb-2">O carga un archivo desde tu dispositivo (.txt o .csv):</label>
+                    <input type="file" id="fileUpload" accept=".txt,.csv" class="cursor-pointer">
+                </div>
+                <!-- Nuevo grupo para cargar archivos predefinidos -->
+                <div class="input-group">
+                    <label for="predefinedFileInput" class="text-left mb-2">O selecciona un archivo predefinido:</label>
+                    <select id="predefinedFileInput">
+                        <option value="">-- Seleccionar archivo --</option>
+                        <!-- Options will be dynamically loaded here -->
+                    </select>
+                </div>
+                <button id="addParticipantsBtn" class="button-group button add-participants-btn">Agregar Participantes</button>
+                <button id="loadPredefinedFileBtn" class="button-group button load-predefined-btn">Cargar Archivo Predeterminado</button>
+            </div>
+
+            <div class="participant-display-section">
+                <h2 class="text-2xl font-semibold mb-4 text-left">Participantes Actuales:</h2>
+                <div id="participantList" class="participant-list">
+                    <!-- Participants will be dynamically added here -->
+                    <p id="noParticipantsMsg" class="text-gray-400 text-center">No hay participantes aún.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap justify-center items-center gap-4 mb-8">
+            <div class="input-group flex-grow max-w-xs">
+                <label for="numWinners" class="text-left">Número de ganadores:</label>
+                <input type="number" id="numWinners" value="1" min="1" class="text-center">
+            </div>
+            <button id="drawBtn" class="button-group button">Realizar Sorteo</button>
+            <button id="clearBtn" class="button-group button bg-red-600 hover:bg-red-700">Limpiar Todo</button>
+        </div>
+
+        <div id="winnerDisplay" class="winner-card hidden">
+            <p class="winner-title">¡El ganador es!</p>
+            <div id="winnerName" class="winner-name"></div>
+        </div>
+
+        <div id="historySection" class="history-section hidden">
+            <h3 class="text-xl font-semibold mb-4">Historial de Ganadores:</h3>
+            <div id="winnerHistoryList">
+                <!-- Winner history will be dynamically added here -->
+            </div>
+            <button id="exportHistoryBtn" class="button-group button mt-4">Exportar Historial</button>
+        </div>
+
+        <div id="messageBox" class="message-box hidden"></div>
+    </div>
+
+    <script>
+        // Array para almacenar los participantes
+        let participants = [];
+        // Array para almacenar el historial de ganadores
+        let winnerHistory = [];
+
+        // Referencias a elementos del DOM
+        const participantsInput = document.getElementById('participantsInput');
+        const fileUpload = document.getElementById('fileUpload');
+        const addParticipantsBtn = document.getElementById('addParticipantsBtn');
+        const participantListDiv = document.getElementById('participantList');
+        const noParticipantsMsg = document.getElementById('noParticipantsMsg');
+        const numWinnersInput = document.getElementById('numWinners');
+        const drawBtn = document.getElementById('drawBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const winnerDisplay = document.getElementById('winnerDisplay');
+        const winnerNameDiv = document.getElementById('winnerName');
+        const historySection = document.getElementById('historySection');
+        const winnerHistoryList = document.getElementById('winnerHistoryList');
+        const exportHistoryBtn = document.getElementById('exportHistoryBtn');
+        const messageBox = document.getElementById('messageBox');
+        const predefinedFileInput = document.getElementById('predefinedFileInput');
+        const loadPredefinedFileBtn = document.getElementById('loadPredefinedFileBtn');
+
+        // URL base para los archivos predefinidos (ajusta esto si tus archivos están en una subcarpeta)
+        // Por ejemplo, si tus archivos están en 'archivos_txt/lista.txt', podrías usar 'archivos_txt/'
+        const baseURL = './'; // La misma carpeta que el index.html
+
+        // Lista de archivos predefinidos (solo nombres de archivo)
+        // ¡IMPORTANTE!: Estos archivos deben existir en tu repositorio en la baseURL especificada.
+        const predefinedFiles = [
+            'participantes_clase_a.txt',
+            'participantes_clase_b.txt',
+            'equipo_proyecto_x.txt'
+        ];
+
+        // Función para poblar el select de archivos predefinidos
+        function populatePredefinedFiles() {
+            predefinedFiles.forEach(fileName => {
+                const option = document.createElement('option');
+                option.value = fileName;
+                option.textContent = fileName;
+                predefinedFileInput.appendChild(option);
+            });
+        }
+
+        // Función para mostrar mensajes temporales
+        function showMessage(message, type = 'warning') {
+            messageBox.textContent = message;
+            messageBox.className = `message-box show`; // Reset and add show class
+            if (type === 'error') {
+                messageBox.style.backgroundColor = '#fca5a5'; // red-300
+                messageBox.style.color = '#7f1d1d'; // red-900
+            } else if (type === 'success') {
+                messageBox.style.backgroundColor = '#a7f3d0'; // green-200
+                messageBox.style.color = '#065f46'; // green-900
+            } else { // warning
+                messageBox.style.backgroundColor = '#fefcbf'; // yellow-200
+                messageBox.style.color = '#92400e'; // yellow-900
+            }
+
+            // Hide message after 3 seconds
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+
+        // Función para limpiar y agregar participantes
+        function addParticipants(newParticipants) {
+            let participantsAdded = 0;
+            newParticipants.forEach(name => {
+                const trimmedName = name.trim();
+                if (trimmedName && !participants.includes(trimmedName)) {
+                    participants.push(trimmedName);
+                    participantsAdded++;
+                }
+            });
+            renderParticipants();
+            participantsInput.value = ''; // Clear textarea after adding
+            if (participantsAdded > 0) {
+                showMessage(`Se agregaron ${participantsAdded} participantes correctamente.`, 'success');
+            } else {
+                showMessage('No se agregaron nuevos participantes (quizás ya existen o están vacíos).', 'warning');
+            }
+        }
+
+        // Evento para agregar participantes desde el textarea
+        addParticipantsBtn.addEventListener('click', () => {
+            const inputNames = participantsInput.value.split('\n').filter(name => name.trim() !== '');
+            if (inputNames.length > 0) {
+                addParticipants(inputNames);
+            } else {
+                showMessage('Por favor, ingresa al menos un participante en el cuadro de texto.', 'warning');
+            }
+        });
+
+        // Evento para cargar participantes desde un archivo local
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    const fileNames = content.split(/\r\n|\n/).filter(name => name.trim() !== '');
+                    addParticipants(fileNames);
+                };
+                reader.onerror = () => {
+                    showMessage('Error al leer el archivo desde tu dispositivo.', 'error');
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Evento para cargar un archivo predefinido
+        loadPredefinedFileBtn.addEventListener('click', async () => {
+            const selectedFile = predefinedFileInput.value;
+            if (selectedFile) {
+                try {
+                    const response = await fetch(baseURL + selectedFile);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const content = await response.text();
+                    const fileNames = content.split(/\r\n|\n/).filter(name => name.trim() !== '');
+                    addParticipants(fileNames);
+                    showMessage(`Archivo '${selectedFile}' cargado correctamente.`, 'success');
+                } catch (error) {
+                    console.error('Error al cargar el archivo predefinido:', error);
+                    showMessage(`Error al cargar el archivo '${selectedFile}'. Asegúrate de que exista.`, 'error');
+                }
+            } else {
+                showMessage('Por favor, selecciona un archivo predefinido para cargar.', 'warning');
+            }
+        });
+
+        // Función para renderizar los participantes en la lista
+        function renderParticipants() {
+            participantListDiv.innerHTML = ''; // Limpiar lista
+            if (participants.length === 0) {
+                noParticipantsMsg.classList.remove('hidden');
+                participantListDiv.appendChild(noParticipantsMsg);
+            } else {
+                noParticipantsMsg.classList.add('hidden');
+                participants.forEach((participant, index) => {
+                    const participantItem = document.createElement('div');
+                    participantItem.className = 'participant-item';
+                    participantItem.innerHTML = `
+                        <span>${participant}</span>
+                        <button data-index="${index}">Eliminar</button>
+                    `;
+                    participantItem.querySelector('button').addEventListener('click', (e) => {
+                        const idxToRemove = parseInt(e.target.dataset.index);
+                        // Filter out the participant by index to avoid issues with duplicate names if not handled by unique ID
+                        participants = participants.filter((_, i) => i !== idxToRemove);
+                        renderParticipants(); // Re-render the list
+                        showMessage('Participante eliminado.', 'success');
+                    });
+                    participantListDiv.appendChild(participantItem);
+                });
+            }
+            updateButtonStates();
+        }
+
+        // Función para lanzar confetti
+        function launchConfetti(count = 50) {
+            for (let i = 0; i < count; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `${Math.random() * -50}px`; // Start above the winner card
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 70%)`; // Random color
+                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+                confetti.style.animationDuration = `${1.5 + Math.random() * 1}s`;
+                winnerDisplay.appendChild(confetti);
+
+                // Remove confetti after animation to prevent DOM clutter
+                confetti.addEventListener('animationend', () => {
+                    confetti.remove();
+                });
+            }
+        }
+
+
+        // Función para realizar el sorteo
+        drawBtn.addEventListener('click', () => {
+            if (participants.length < 2) {
+                showMessage('Necesitas al menos 2 participantes para realizar el sorteo.', 'error');
+                return;
+            }
+
+            const numWinners = parseInt(numWinnersInput.value);
+            if (isNaN(numWinners) || numWinners < 1) {
+                showMessage('Por favor, ingresa un número válido de ganadores (mínimo 1).', 'error');
+                return;
+            }
+            if (numWinners > participants.length) {
+                showMessage(`No puedes sortear ${numWinners} ganadores, solo tienes ${participants.length} participantes.`, 'error');
+                return;
+            }
+
+            // Hide previous winner display
+            winnerDisplay.classList.add('hidden');
+            winnerNameDiv.textContent = ''; // Clear previous winner
+
+            // Select winners
+            const selectedWinners = [];
+            const availableParticipants = [...participants]; // Copy to avoid modifying original array during selection
+
+            for (let i = 0; i < numWinners; i++) {
+                if (availableParticipants.length === 0) break; // Should not happen if numWinners <= participants.length
+
+                const randomIndex = Math.floor(Math.random() * availableParticipants.length);
+                const winner = availableParticipants.splice(randomIndex, 1)[0];
+                selectedWinners.push(winner);
+            }
+
+            // Display winner(s)
+            setTimeout(() => {
+                winnerDisplay.classList.remove('hidden');
+                winnerNameDiv.innerHTML = selectedWinners.join('<br>'); // Display multiple winners
+                launchConfetti(50); // Launch confetti for winners
+
+                // Add to history
+                const timestamp = new Date().toLocaleString('es-AR', {
+                    year: 'numeric', month: 'numeric', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit',
+                    hour12: false
+                });
+                selectedWinners.forEach(winner => {
+                    winnerHistory.unshift({ name: winner, timestamp: timestamp }); // Add to beginning
+                });
+                renderWinnerHistory();
+            }, 100); // Small delay for animation reset
+        });
+
+        // Función para renderizar el historial de ganadores
+        function renderWinnerHistory() {
+            winnerHistoryList.innerHTML = '';
+            if (winnerHistory.length === 0) {
+                historySection.classList.add('hidden');
+            } else {
+                historySection.classList.remove('hidden');
+                winnerHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = `
+                        <span>${item.name}</span>
+                        <span class="timestamp">${item.timestamp}</span>
+                    `;
+                    winnerHistoryList.appendChild(historyItem);
+                });
+            }
+        }
+
+        // Función para limpiar todo
+        clearBtn.addEventListener('click', () => {
+            window.confirm('¿Estás seguro de que quieres limpiar todo y reiniciar el sorteo?')
+                .then(result => {
+                    if (result) {
+                        participants = [];
+                        winnerHistory = [];
+                        participantsInput.value = '';
+                        fileUpload.value = ''; // Clear file input
+                        predefinedFileInput.value = ''; // Clear predefined file selection
+                        numWinnersInput.value = 1;
+                        winnerDisplay.classList.add('hidden');
+                        historySection.classList.add('hidden');
+                        renderParticipants();
+                        renderWinnerHistory();
+                        showMessage('Todo ha sido limpiado.', 'success');
+                    }
+                });
+        });
+
+        // Función para exportar el historial
+        exportHistoryBtn.addEventListener('click', () => {
+            if (winnerHistory.length === 0) {
+                showMessage('No hay historial para exportar.', 'warning');
+                return;
+            }
+
+            let csvContent = "Ganador,Fecha y Hora\n";
+            winnerHistory.forEach(item => {
+                // Escape commas in names if any, and enclose in quotes
+                const escapedName = `"${item.name.replace(/"/g, '""')}"`;
+                csvContent += `${escapedName},"${item.timestamp}"\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'historial_ganadores.csv';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showMessage('Historial exportado correctamente.', 'success');
+        });
+
+        // Función para actualizar el estado de los botones
+        function updateButtonStates() {
+            drawBtn.disabled = participants.length < 2;
+            exportHistoryBtn.disabled = winnerHistory.length === 0;
+        }
+
+        // Initial render and button state update
+        populatePredefinedFiles(); // Populate the dropdown on load
+        renderParticipants();
+        renderWinnerHistory();
+        updateButtonStates();
+
+        // Simple custom confirm dialog replacement (since alert/confirm are blocked)
+        function confirm(message) {
+            return new Promise((resolve) => {
+                const dialogOverlay = document.createElement('div');
+                dialogOverlay.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background-color: rgba(0,0,0,0.7); display: flex;
+                    justify-content: center; align-items: center; z-index: 2000;
+                `;
+                const dialogBox = document.createElement('div');
+                dialogBox.style.cssText = `
+                    background-color: #fff; padding: 25px; border-radius: 15px;
+                    box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
+                    color: #333; max-width: 400px; width: 90%;
+                `;
+                dialogBox.innerHTML = `
+                    <p class="mb-5 text-lg font-semibold">${message}</p>
+                    <button id="confirmYes" class="button-group button bg-green-600 hover:bg-green-700 mx-2">Sí</button>
+                    <button id="confirmNo" class="button-group button bg-red-600 hover:bg-red-700 mx-2">No</button>
+                `;
+                dialogOverlay.appendChild(dialogBox);
+                document.body.appendChild(dialogOverlay);
+
+                document.getElementById('confirmYes').onclick = () => {
+                    dialogOverlay.remove();
+                    resolve(true);
+                };
+                document.getElementById('confirmNo').onclick = () => {
+                    dialogOverlay.remove();
+                    resolve(false);
+                };
+            });
+        }
+
+        // Override window.confirm for this application
+        window.confirm = confirm;
+
+    </script>
+</body>
+</html>
