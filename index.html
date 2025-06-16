@@ -78,7 +78,29 @@
         .input-group select:focus { /* Added select for styling */
             border-color: #a78bfa; /* purple-400 */
         }
-
+        .rounded-full {
+            border-radius: calc(infinity * 1px);
+            color: white;
+            padding: 12px 25px;
+            }
+        .red-button-2:hover {
+            background-color: #DC143C;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            }
+            .red-button-2 {
+            background-color: #FF0000; /* emerald-500 */
+            transition: all 0.3s ease;
+            }
+        .lime-button-2:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            }
+            .lime-button-2 {
+            background-color: #10b981; /* emerald-500 */
+            transition: all 0.3s ease;
+            }
         .button-group button {
             background-color: #6d28d9; /* violet-700 */
             color: white;
@@ -105,21 +127,24 @@
 
         /* Specific style for add participants button */
         .add-participants-btn {
-            background-color: #10b981; /* emerald-500 */
+            background-color: #1E90FF; /* emerald-500 */
             transition: all 0.3s ease;
         }
         .add-participants-btn:hover {
-            background-color: #059669; /* emerald-600 */
+            background-color: #4169E1; /* emerald-600 */
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
 
         /* Specific style for load predefined file button */
         .load-predefined-btn {
-            background-color: #3b82f6; /* blue-500 */
+            background-color: #1E90FF; /* emerald-500 */
+            transition: all 0.3s ease;
         }
         .load-predefined-btn:hover {
-            background-color: #2563eb; /* blue-600 */
+            background-color: #4169E1; /* emerald-600 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
 
 
@@ -273,21 +298,22 @@
                 <div class="input-group">
                     <label for="participantsInput" class="text-left">Ingresa participantes (uno por línea):</label>
                     <textarea id="participantsInput" rows="8" placeholder="Ej:&#10;Juan Pérez&#10;María López&#10;Carlos García"></textarea>
-                </div>
+                    <button id="addParticipantsBtn" class="rounded-full add-participants-btn">Agregar Participantes</button>
+                </div><br>
                 <div class="input-group">
-                    <label for="fileUpload" class="text-left mb-2">O carga un archivo desde tu dispositivo (.txt o .csv):</label>
+                    <label for="fileUpload" class="text-left mb-2">Carga archivo desde tu dispositivo (.txt o .csv):</label>
                     <input type="file" id="fileUpload" accept=".txt,.csv" class="cursor-pointer">
                 </div>
                 <!-- Nuevo grupo para cargar archivos predefinidos -->
                 <div class="input-group">
-                    <label for="predefinedFileInput" class="text-left mb-2">O selecciona un archivo predefinido:</label>
+                    <label for="predefinedFileInput" class="text-left mb-2">Selecciona un archivo predefinido:</label>
                     <select id="predefinedFileInput">
                         <option value="">-- Seleccionar archivo --</option>
                         <!-- Options will be dynamically loaded here -->
                     </select>
                 </div>
-                <button id="addParticipantsBtn" class="button-group button add-participants-btn">Agregar Participantes</button>
-                <button id="loadPredefinedFileBtn" class="button-group button load-predefined-btn">Cargar Archivo Predeterminado</button>
+
+                <button id="loadPredefinedFileBtn" class="rounded-full load-predefined-btn">Cargar Archivo Predeterminado</button>
             </div>
 
             <div class="participant-display-section">
@@ -304,8 +330,8 @@
                 <label for="numWinners" class="text-left">Número de ganadores:</label>
                 <input type="number" id="numWinners" value="1" min="1" class="text-center">
             </div>
-            <button id="drawBtn" class="button-group button">Realizar Sorteo</button>
-            <button id="clearBtn" class="button-group button bg-red-600 hover:bg-red-700">Limpiar Todo</button>
+            <button id="drawBtn" class="rounded-full lime-button-2">Realizar Sorteo</button>
+            <button id="clearBtn" class="rounded-full red-button-2">Limpiar Todo</button>
         </div>
 
         <div id="winnerDisplay" class="winner-card hidden">
