@@ -9,6 +9,7 @@
     <!-- Google Fonts - Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Base styles for body and container, mixing custom CSS with Tailwind principles */
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(to right bottom, #8e2de2, #4a00e0);
@@ -82,25 +83,34 @@
             border-radius: calc(infinity * 1px);
             color: white;
             padding: 12px 25px;
-            }
+        }
         .red-button-2:hover {
             background-color: #DC143C;
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            }
-            .red-button-2 {
-            background-color: #FF0000; /* emerald-500 */
+        }
+        .red-button-2 {
+            background-color: #FF0000; /* red */
             transition: all 0.3s ease;
-            }
+        }
         .lime-button-2:hover {
             background-color: #059669;
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-            }
-            .lime-button-2 {
+        }
+        .lime-button-2 {
             background-color: #10b981; /* emerald-500 */
             transition: all 0.3s ease;
-            }
+        }
+        .orange-button-2:hover {
+            background-color: #FF4500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        .orange-button-2 {
+            background-color: #FF8C00; /* emerald-500 */
+            transition: all 0.3s ease;
+        }
         .button-group button {
             background-color: #6d28d9; /* violet-700 */
             color: white;
@@ -127,26 +137,25 @@
 
         /* Specific style for add participants button */
         .add-participants-btn {
-            background-color: #1E90FF; /* emerald-500 */
+            background-color: #1E90FF; /* dodgerblue */
             transition: all 0.3s ease;
         }
         .add-participants-btn:hover {
-            background-color: #4169E1; /* emerald-600 */
+            background-color: #4169E1; /* royalblue */
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
 
         /* Specific style for load predefined file button */
         .load-predefined-btn {
-            background-color: #1E90FF; /* emerald-500 */
+            background-color: #1E90FF; /* dodgerblue */
             transition: all 0.3s ease;
         }
         .load-predefined-btn:hover {
-            background-color: #4169E1; /* emerald-600 */
+            background-color: #4169E1; /* royalblue */
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
         }
-
 
         .participant-list {
             background-color: rgba(255, 255, 255, 0.08);
@@ -287,6 +296,41 @@
             opacity: 1;
         }
 
+        /* Custom Confirm Dialog Styles */
+        .custom-confirm-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            visibility: hidden;
+        }
+        .custom-confirm-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        .custom-confirm-box {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            color: #333;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.9);
+            transition: transform 0.3s ease-in-out;
+        }
+        .custom-confirm-overlay.show .custom-confirm-box {
+            transform: scale(1);
+        }
     </style>
 </head>
 <body>
@@ -344,10 +388,19 @@
             <div id="winnerHistoryList">
                 <!-- Winner history will be dynamically added here -->
             </div>
-            <button id="exportHistoryBtn" class="button-group button mt-4">Exportar Historial</button>
+            <button id="exportHistoryBtn" class="rounded-full orange-button-2">Exportar Historial</button>
         </div>
 
         <div id="messageBox" class="message-box hidden"></div>
+    </div>
+
+    <!-- Custom Confirm Dialog HTML -->
+    <div id="customConfirmOverlay" class="custom-confirm-overlay">
+        <div class="custom-confirm-box">
+            <p id="confirmMessage" class="mb-5 text-lg font-semibold"></p>
+            <button id="confirmYes" class="rounded-full lime-button-2"">Sí</button>
+            <button id="confirmNo" class="rounded-full red-button-2">No</button>
+        </div>
     </div>
 
     <script>
@@ -373,6 +426,12 @@
         const messageBox = document.getElementById('messageBox');
         const predefinedFileInput = document.getElementById('predefinedFileInput');
         const loadPredefinedFileBtn = document.getElementById('loadPredefinedFileBtn');
+
+        // References for the custom confirm dialog
+        const customConfirmOverlay = document.getElementById('customConfirmOverlay');
+        const confirmMessageDiv = document.getElementById('confirmMessage');
+        const confirmYesBtn = document.getElementById('confirmYes');
+        const confirmNoBtn = document.getElementById('confirmNo');
 
         // URL base para los archivos predefinidos (ajusta esto si tus archivos están en una subcarpeta)
         // Por ejemplo, si tus archivos están en 'archivos_txt/lista.txt', podrías usar 'archivos_txt/'
@@ -602,11 +661,13 @@
                     winnerHistoryList.appendChild(historyItem);
                 });
             }
+            updateButtonStates(); // Ensure button states are updated when history is rendered
         }
 
         // Función para limpiar todo
         clearBtn.addEventListener('click', () => {
-            window.confirm('¿Estás seguro de que quieres limpiar todo y reiniciar el sorteo?')
+            // Call the custom confirm dialog
+            customConfirm('¿Estás seguro de que quieres limpiar todo y reiniciar el sorteo?')
                 .then(result => {
                     if (result) {
                         participants = [];
@@ -643,8 +704,14 @@
             link.href = URL.createObjectURL(blob);
             link.download = 'historial_ganadores.csv';
             document.body.appendChild(link);
+
+            // Trigger the click and then clean up after a slight delay
             link.click();
-            document.body.removeChild(link);
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(link.href); // Clean up the object URL
+            }, 100); // Small delay for the download to initiate
+
             showMessage('Historial exportado correctamente.', 'success');
         });
 
@@ -654,49 +721,36 @@
             exportHistoryBtn.disabled = winnerHistory.length === 0;
         }
 
-        // Initial render and button state update
-        populatePredefinedFiles(); // Populate the dropdown on load
-        renderParticipants();
-        renderWinnerHistory();
-        updateButtonStates();
-
-        // Simple custom confirm dialog replacement (since alert/confirm are blocked)
-        function confirm(message) {
+        // Simple custom confirm dialog replacement (not overriding window.confirm)
+        function customConfirm(message) {
             return new Promise((resolve) => {
-                const dialogOverlay = document.createElement('div');
-                dialogOverlay.style.cssText = `
-                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                    background-color: rgba(0,0,0,0.7); display: flex;
-                    justify-content: center; align-items: center; z-index: 2000;
-                `;
-                const dialogBox = document.createElement('div');
-                dialogBox.style.cssText = `
-                    background-color: #fff; padding: 25px; border-radius: 15px;
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.3); text-align: center;
-                    color: #333; max-width: 400px; width: 90%;
-                `;
-                dialogBox.innerHTML = `
-                    <p class="mb-5 text-lg font-semibold">${message}</p>
-                    <button id="confirmYes" class="button-group button bg-green-600 hover:bg-green-700 mx-2">Sí</button>
-                    <button id="confirmNo" class="button-group button bg-red-600 hover:bg-red-700 mx-2">No</button>
-                `;
-                dialogOverlay.appendChild(dialogBox);
-                document.body.appendChild(dialogOverlay);
+                confirmMessageDiv.textContent = message;
+                customConfirmOverlay.classList.add('show');
 
-                document.getElementById('confirmYes').onclick = () => {
-                    dialogOverlay.remove();
+                const handleYes = () => {
+                    customConfirmOverlay.classList.remove('show');
+                    confirmYesBtn.removeEventListener('click', handleYes);
+                    confirmNoBtn.removeEventListener('click', handleNo);
                     resolve(true);
                 };
-                document.getElementById('confirmNo').onclick = () => {
-                    dialogOverlay.remove();
+
+                const handleNo = () => {
+                    customConfirmOverlay.classList.remove('show');
+                    confirmYesBtn.removeEventListener('click', handleYes);
+                    confirmNoBtn.removeEventListener('click', handleNo);
                     resolve(false);
                 };
+
+                confirmYesBtn.addEventListener('click', handleYes);
+                confirmNoBtn.addEventListener('click', handleNo);
             });
         }
 
-        // Override window.confirm for this application
-        window.confirm = confirm;
-
+        // Initial render and button state update
+        populatePredefinedFiles(); // Populate the dropdown on load
+        renderParticipants();
+        renderWinnerHistory(); // Make sure this is called initially to set button state
+        updateButtonStates();
     </script>
 </body>
 </html>
